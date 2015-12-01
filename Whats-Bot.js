@@ -54,15 +54,55 @@ about.run = function(args) {
 	send('Version ' + version);
 };
 
-var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds');
+var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms');
 countdown.run = function(args) {
+	var useIt = false;
+	if(useIt){
+		send('This CMD is turned off due to spam!');
+		return;
+	}
+
+	var i = 0;
+
 	if(args.length < 3) { 
 		syntaxError();
 		return;
 	}
 	var times = parseInt(args[1]);
+	if(isNaN(times))
+		times = 5;
 	debug('[COUNTDOWN] Got ' + times + ' times');
 	var ms = parseInt(args[2]);
+	if(isNaN(ms))
+		ms = 500;
+	ms -= 100;
+	if(ms < 100)
+		ms = 100;
+	debug('[COUNTDOWN] Got ' + ms + ' miliseconds');
+	
+	if(times > 10){
+		send('times too high! using 10 times instead!');
+		times = 10;
+	}
+
+	if(ms > 2000){
+		send('MS too high! using 2000ms instead!');
+		ms = 2000;
+	}
+
+	send(times);
+
+	loop();
+
+	function loop() {
+		setTimeout(function () {
+			times--;
+			if (times >= 0) {
+				send(times);
+				loop();
+			}
+		}, 	ms)
+	};
 }
 
 var help = new cmd('help', '[CMD]', 'Used for help');
