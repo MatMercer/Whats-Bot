@@ -1,38 +1,41 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    http://www.3399.podserver.info/
-// @version      0.4
+// @version      1.0 BETA
 // @description  A whatsapp bot just for fun
 // @author       I3399I
 // @match        https://web.whatsapp.com/
-// @grant        none
+// @grant        Thanks for Macr's Warehouse making this good WS send msg method!
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 /* jshint -W097 */
 'use strict';
 
 //Character used to indentify commands
-var any = '#';
+var any = '/';
+
+//Do debug or not
+var doDebug = true;
 
 var lastId;
 var id;
 var msgText;
 var args;
 
-//Get the command request
+//Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
 	msgText = $('#main > div > div.pane-chat-msgs.pane-chat-body.lastTabIndex > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text').html();
 	id = $('#main > div > div.pane-chat-msgs.pane-chat-body.lastTabIndex > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text').attr('data-reactid');
 	if (lastId !== id){
 		if (stringStartsWith(msgText, any)) {
+			debug("Detected a command");
 			parseCmd(msgText);
-			sleep(100);
 		}
 	};
 	lastId = id;
 });
 
-//CMD
+//CMD constructor
 function cmd(nm, syntax, desc) {
 	this.nm = nm;
 	this.syntax = syntax;
@@ -46,26 +49,27 @@ function cmd(nm, syntax, desc) {
 
 var say = new cmd('say', '[msg]', 'A command that makes me say something.');
 say.run = function(args) {
-	console.log(args[1] + "OMG");
+	args[0] = "";
+	send(args.join(' '));
 };
 
-var test = new cmd('teste', '', 'A debug command');
+var test = new cmd('test', '', 'A debug command');
 test.run = function(args) {
-	sendMsg(args[0]);
 };
+
+//All the CMDs, used for listing/searching
+var cmds = [say, test];
 
 //End of CMD area
 
-//All the cmds, used for listing/searching
-var cmds = [say, test];
-
-//Parse the cmds
+//Parse the CMDs
 function parseCmd(msg) {
 	msg = msg.slice(1, msg.length);
+	debug("Got '" + msg + "' CMD request.");
 	args = msg.split(' ');
 	for (var i = 0; i < cmds.length; i++) {
 		if(args[0] == cmds[i].nm){
-			sleep(100);
+			debug("Executed " + args[0] + " CMD");
 			cmds[i].run(args);
 		};
 	};
@@ -76,34 +80,31 @@ function stringStartsWith(string, prefix) {
 	return string.slice(0, prefix.length) == prefix;
 };
 
-//By: http://stackoverflow.com/questions/16873323/javascript-sleep-wait-before-continuing
-function sleep(milliseconds) {
-	var start = new Date().getTime();
-	for (var i = 0; i < 1e7; i++) {
-		if ((new Date().getTime() - start) > milliseconds){
-			break;
-		}
-	}
+function debug(msg) {
+	if(doDebug)
+		console.log("[DEBUG]  " + msg + "\n");
 }
 
-function sendMsg(msg){
-	text = msg;
-	reps = 1;
-	campo = document.getElementsByClassName("input")[1];
-	contador = 1;
-	while(contador<=reps){
-		dispatch(campo, "textInput", text); 
-		var input = document.getElementsByClassName("icon btn-icon icon-send");
-		input[0].click();
-		contador++;
-		setTimeout(function(){ }, 1);
-	}
+function send(msg){
+	setTimeout(function() {
+		spam(msg);
+	}, 100)
 }
 
+//Based on http://macr1408.260mb.org/wspam2.html
 function dispatch(target, eventType, char) {
-	sleep(200);
 	var evt = document.createEvent("TextEvent");    
 	evt.initTextEvent (eventType, true, true, window, char, 0, "en-US");
 	target.focus();
 	target.dispatchEvent(evt);
+}
+
+//Based on http://macr1408.260mb.org/wspam2.html
+function spam(msg){
+	texto = msg;
+	campo = document.getElementsByClassName("input")[1];
+	dispatch(campo, "textInput", texto); 
+	var input = document.getElementsByClassName("icon btn-icon icon-send");
+	input[0].click();
+	setTimeout(function(){ }, 50);
 }
