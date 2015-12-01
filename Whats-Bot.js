@@ -65,13 +65,14 @@ help.run = function(args) {
 
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
-	send('Avaible CMDs:\n<---------->')
+	send('Avaible CMDs:\n');
+	send('<---------->');
 
 	for (var i = 0; i < cmds.length; i++) {
 		send(cmds[i].nm);
 	};
-
-	send('<---------->\nUse ' + any + 'help [CMD] to see how to use');
+	send('<---------->');
+	send('\nUse ' + any + 'help [CMD] to see how to use');
 }
 
 var say = new cmd('say', '[msg]', 'A command that makes me say something');
