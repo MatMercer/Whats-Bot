@@ -17,6 +17,7 @@ var any = '/';
 //Do debug or not
 var doDebug = true;
 
+//General vars
 var args;
 var id;
 var lastId;
@@ -47,6 +48,10 @@ function cmd(nm, syntax, desc) {
 }
 
 //Start of CMD area
+
+//Vars area
+var tdareStack = [];
+//End of vars area
 
 var about = new cmd('about', '', 'About the Bot');
 about.run = function(args) {
@@ -139,8 +144,103 @@ say.run = function(args) {
 	send(args.join(' '));
 };
 
-var test = new cmd('test', '', 'A debug command');
-test.run = function(args) {
+var tadd = new cmd('tadd', '[NAME]', 'Adds a person to tdare CMD');
+tadd.run = function(args) {
+	if(args.length < 2){
+		syntaxError();
+		return;
+	}
+	args[0] = '';
+	var p = args.join(' ').substring(1);
+
+	tdareStack[tdareStack.length] = p;
+	send('Added ' + p + ' person to tdareStack');
+};
+
+var tdare = new cmd('tdare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.');
+tdare.mode = 'both';
+tdare.run = function(args) {
+	if(args.length > 2){
+		if(args[1] == 'set'){
+			switch(args[2]){
+				case 'truth':
+					this.mode = 'truth';
+					send('Set Truth or Dare mode to only truth');
+					break;
+				case 'dare':
+					this.mode = 'dare';
+					send('Set Truth or Dare mode to only dare');
+					break;
+				case 'both':
+					this.mode = 'both';
+					send('Set Truth or Dare mode to both');
+					break;
+				default:
+					send('Invalid mode!');
+			}
+		}
+	}else {
+		if(tdareStack.length < 2){
+			send('Error! At least 2 people need to be added! Used /tadd to add them');
+			return;
+		}
+		var td = rand(0, 2);
+		var nb1 = rand(0, tdareStack.length);
+		var nb2 = rand(0, tdareStack.length);
+		var msg;
+
+		for(var i = 0; i < 10; i++){
+		 	if(nb1 !== nb2){
+		 		break;
+		 	}
+		 	nb1 = rand(0, tdareStack.length);
+		 	nb2 = rand(0, tdareStack.length);
+		 	debug('[TDARE] Looped for rand');
+		}
+		debug('[TDARE] Got ' + nb1 + ' index for first person');
+		debug('[TDARE] Got ' + nb2 + ' index for first person');
+
+		switch(this.mode){
+				case 'truth':
+					send(tdareStack[nb1] + ' asks ' + tdareStack[nb2]);
+					break;
+				case 'dare':
+					send(tdareStack[nb1] + ' dares ' + tdareStack[nb2]);
+					break;
+				case 'both':
+					msg = td > 0 ? ' asks ' : ' dares ';
+					send(tdareStack[nb1] + msg + tdareStack[nb2]);
+					break;
+		}
+	}
+};
+
+var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD');
+tlist.run = function(args) {
+	for (var i = 0; i < tdareStack.length; i++) {
+		send(tdareStack[i]);
+	}
+};
+
+var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD');
+trmv.run = function(args) {
+	if(args.length < 2){
+		syntaxError();
+		return;
+	}
+	args[0] = '';
+	var p = args.join(' ').substring(1);
+
+	var index = tdareStack.indexOf(p);
+
+	debug(['[TRMV] Got ' + index + ' index']);
+
+	if(index > -1){
+		tdareStack.splice(index, 1);
+		send('Removed ' + p + ' from tdareStack');
+	}
+	else
+		send('No person with name ' + p + ' found');
 };
 
 var whoisfat = new cmd('whoisfat', '', 'A stupid CMD');
@@ -149,7 +249,7 @@ whoisfat.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [about, countdown, help, list, say, test, whoisfat];
+var cmds = [about, countdown, help, list, say, tadd, tdare, tlist, trmv, whoisfat];
 
 //End of CMD area
 
@@ -169,6 +269,11 @@ function parseCmd(msg) {
 //By: http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
 function stringStartsWith(string, prefix) {
 	return string.slice(0, prefix.length) == prefix;
+}
+
+//Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
+function rand(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 function syntaxError() {
