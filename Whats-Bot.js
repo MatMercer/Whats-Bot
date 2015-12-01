@@ -73,7 +73,7 @@ list.run = function(args) {
 	};
 	send('<---------->');
 	send('\nUse ' + any + 'help [CMD] to see how to use');
-}
+};
 
 var say = new cmd('say', '[msg]', 'A command that makes me say something');
 say.run = function(args) {
@@ -85,8 +85,13 @@ var test = new cmd('test', '', 'A debug command');
 test.run = function(args) {
 };
 
+var whoisfat = new cmd('whoisfat', '', 'A stupid CMD');
+whoisfat.run = function(args) {
+	send('UR MOM! HUEHUEHUEHHUE');
+};
+
 //All the CMDs, used for listing/searching
-var cmds = [help, list, say, test];
+var cmds = [help, list, say, test, whoisfat];
 
 //End of CMD area
 
