@@ -48,6 +48,23 @@ function cmd(nm, syntax, desc) {
 
 //Start of CMD area
 
+var about = new cmd('about', '', 'About the Bot');
+about.run = function(args) {
+	send('WhatsApp Bot | Made by I3399I');
+	send('Version ' + version);
+};
+
+var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds');
+countdown.run = function(args) {
+	if(args.length < 3) { 
+		syntaxError();
+		return;
+	}
+	var times = parseInt(args[1]);
+	debug('[COUNTDOWN] Got ' + times + ' times');
+	var ms = parseInt(args[2]);
+}
+
 var help = new cmd('help', '[CMD]', 'Used for help');
 help.run = function(args) {
 	var found = false;
@@ -63,23 +80,6 @@ help.run = function(args) {
 	if (!found)
 		send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
-
-var about = new cmd('about', '', 'About the Bot');
-about.run = function(args) {
-	send('WhatsApp Bot | Made by I3399I');
-	send('Version ' + version);
-};
-
-var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with\ncustom miliseconds');
-countdown.run = function(args) {
-	if(args.length < 3) { 
-		syntaxError();
-		return;
-	}
-	var times = parseInt(args[1]);
-	debug('[COUNTDOWN] Got ' + times + ' times');
-	var ms = parseInt(args[2]);
-}
 
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
