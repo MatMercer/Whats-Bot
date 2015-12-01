@@ -31,7 +31,7 @@ $(document).bind('DOMNodeInserted', function(e) {
 			debug("Detected a command");
 			parseCmd(msgText);
 		}
-	};
+	}
 	lastId = id;
 });
 
@@ -43,7 +43,7 @@ function cmd(nm, syntax, desc) {
 	this.run = function (args) {
 		console.log('EXECUTED ' + this.nm + ' IN DEFAULT MODE');
 	};
-};
+}
 
 //Start of CMD area
 
@@ -56,8 +56,8 @@ help.run = function(args) {
 			debug("[HELP CMD] Found " + args[1] + " CMD");
 			send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + "\n" + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
 			found = true;
-		};
-	};
+		}
+	}
 
 	if (!found)
 		send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
@@ -70,7 +70,7 @@ list.run = function(args) {
 
 	for (var i = 0; i < cmds.length; i++) {
 		send(cmds[i].nm);
-	};
+	}
 	send('<---------->');
 	send('\nUse ' + any + 'help [CMD] to see how to use');
 };
@@ -104,14 +104,14 @@ function parseCmd(msg) {
 		if(args[0] == cmds[i].nm){
 			debug("Executed " + args[0] + " CMD");
 			cmds[i].run(args);
-		};
-	};
-};
+		}
+	}
+}
 
 //By: http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
 function stringStartsWith(string, prefix) {
 	return string.slice(0, prefix.length) == prefix;
-};
+}
 
 function debug(msg) {
 	if(doDebug)
@@ -121,13 +121,13 @@ function debug(msg) {
 function send(msg){
 	setTimeout(function() {
 		spam(msg);
-	}, 100)
+	}, 100);
 }
 
 //Based on http://macr1408.260mb.org/wspam2.html
-function dispatch(target, eventType, char) {
+function dispatch(target, eventType, msg) {
 	var evt = document.createEvent("TextEvent");    
-	evt.initTextEvent (eventType, true, true, window, char, 0, "en-US");
+	evt.initTextEvent (eventType, true, true, window, msg, 0, "en-US");
 	target.focus();
 	target.dispatchEvent(evt);
 }
