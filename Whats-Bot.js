@@ -47,7 +47,23 @@ function cmd(nm, syntax, desc) {
 
 //Start of CMD area
 
-var say = new cmd('say', '[msg]', 'A command that makes me say something.');
+var help = new cmd('help', '[CMD]', 'Used for help');
+help.run = function(args) {
+	var found = false;
+
+	for (var i = 0; i < cmds.length; i++) {
+		if(args[1] == cmds[i].nm){
+			debug("[HELP CMD] Found " + args[1] + " CMD");
+			send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + "\n" + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
+			found = true;
+		};
+	};
+
+	if (!found)
+		send('No CMD with name ' + args[1]);
+};
+
+var say = new cmd('say', '[msg]', 'A command that makes me say something');
 say.run = function(args) {
 	args[0] = "";
 	send(args.join(' '));
@@ -58,7 +74,7 @@ test.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [say, test];
+var cmds = [help, say, test];
 
 //End of CMD area
 
