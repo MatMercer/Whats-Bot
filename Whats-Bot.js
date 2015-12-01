@@ -131,6 +131,11 @@ function stringStartsWith(string, prefix) {
 	return string.slice(0, prefix.length) == prefix;
 }
 
+function syntaxError() {
+	debug('Syntax Error!');
+	send('Invalid syntax! Use\n' + any + 'help [CMD] to see how to use!');
+}
+
 function debug(msg) {
 	if(doDebug)
 		console.log("[DEBUG]  " + msg + "\n");
