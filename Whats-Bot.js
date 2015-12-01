@@ -60,8 +60,19 @@ help.run = function(args) {
 	};
 
 	if (!found)
-		send('No CMD with name ' + args[1]);
+		send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
+
+var list = new cmd('list', '', 'Lists all the CMDs avaible');
+list.run = function(args) {
+	send('Avaible CMDs:\n<---------->')
+
+	for (var i = 0; i < cmds.length; i++) {
+		send(cmds[i].nm);
+	};
+
+	send('<---------->\nUse ' + any + 'help [CMD] to see how to use');
+}
 
 var say = new cmd('say', '[msg]', 'A command that makes me say something');
 say.run = function(args) {
@@ -74,7 +85,7 @@ test.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [help, say, test];
+var cmds = [help, list, say, test];
 
 //End of CMD area
 
