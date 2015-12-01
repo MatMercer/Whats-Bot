@@ -57,7 +57,7 @@ about.run = function(args) {
 var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms');
 countdown.run = function(args) {
 	var useIt = false;
-	if(useIt){
+	if(!useIt){
 		send('This CMD is turned off due to spam!');
 		return;
 	}
