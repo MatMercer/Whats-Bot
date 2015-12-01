@@ -70,6 +70,17 @@ about.run = function(args) {
 	send('Version ' + version);
 };
 
+var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with\ncustom miliseconds');
+countdown.run = function(args) {
+	if(args.length < 3) { 
+		syntaxError();
+		return;
+	}
+	var times = parseInt(args[1]);
+	debug('[COUNTDOWN] Got ' + times + ' times');
+	var ms = parseInt(args[2]);
+}
+
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
 	send('Avaible CMDs:\n');
@@ -98,7 +109,7 @@ whoisfat.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [about, help, list, say, test, whoisfat];
+var cmds = [about, countdown, help, list, say, test, whoisfat];
 
 //End of CMD area
 
