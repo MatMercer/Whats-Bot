@@ -17,10 +17,11 @@ var any = '/';
 //Do debug or not
 var doDebug = true;
 
-var lastId;
-var id;
-var msgText;
 var args;
+var id;
+var lastId;
+var msgText;
+var version = '1.0 BETA';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
@@ -63,6 +64,12 @@ help.run = function(args) {
 		send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
+var about = new cmd('about', '', 'About the Bot');
+about.run = function(args) {
+	send('WhatsApp Bot | Made by I3399I');
+	send('Version ' + version);
+};
+
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
 	send('Avaible CMDs:\n');
@@ -91,7 +98,7 @@ whoisfat.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [help, list, say, test, whoisfat];
+var cmds = [about, help, list, say, test, whoisfat];
 
 //End of CMD area
 
