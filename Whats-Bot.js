@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    http://www.3399.podserver.info/
-// @version      1.0 BETA
+// @version      1.1 BETA
 // @description  A whatsapp bot just for fun
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -21,7 +21,7 @@ var args;
 var id;
 var lastId;
 var msgText;
-var version = '1.0 BETA';
+var version = '1.1 BETA';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
