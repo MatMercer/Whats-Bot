@@ -57,6 +57,7 @@ var about = new cmd('about', '', 'About the Bot');
 about.run = function(args) {
 	send('WhatsApp Bot | Made by I3399I');
 	send('Version ' + version);
+	send('Source code at: http://bit.ly/1LMtENe');
 };
 
 var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms');
