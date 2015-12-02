@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         WhatsApp Bot
-// @namespace    http://www.3399.podserver.info/
+// @namespace    WhatsApp Bot
 // @version      2.0 BETA
-// @description  A whatsapp bot just for fun
+// @description  A whatsapp web bot
 // @author       I3399I
 // @match        https://web.whatsapp.com/
 // @grant        Thanks for Macr's Warehouse making this good WS send msg method!
