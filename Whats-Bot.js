@@ -22,7 +22,7 @@ var args;
 var id;
 var lastId;
 var msgText;
-var version = '1.5 BETA';
+var version = '1.8 BETA';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
