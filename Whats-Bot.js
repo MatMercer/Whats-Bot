@@ -253,11 +253,6 @@ trmv.run = function(args) {
 		send('No person with name ' + p + ' found');
 };
 
-var whoisfat = new cmd('whoisfat', '', 'A stupid CMD');
-whoisfat.run = function(args) {
-	send('UR MOM! HUEHUEHUEHHUE');
-};
-
 //All the CMDs, used for listing/searching
 var cmds = [
 about, 
@@ -269,8 +264,8 @@ say,
 tadd,
 tdare,
 list,
-trmv,
-whoisfat];
+trmv
+];
 
 //End of CMD area
 
