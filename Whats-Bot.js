@@ -109,7 +109,16 @@ countdown.run = function(args) {
 			}
 		}, 	ms)
 	};
-}
+};
+
+var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number');
+fact.run = function(args) {
+	if(args.length > 1 && !isNaN(args[1])){
+		send(factorial(parseInt(args[1])));
+	}
+	else
+		syntaxError();
+};
 
 var help = new cmd('help', '[CMD]', 'Used for help');
 help.run = function(args) {
@@ -165,19 +174,19 @@ tdare.run = function(args) {
 		if(args[1] == 'set'){
 			switch(args[2]){
 				case 'truth':
-					this.mode = 'truth';
-					send('Set Truth or Dare mode to only truth');
-					break;
+				this.mode = 'truth';
+				send('Set Truth or Dare mode to only truth');
+				break;
 				case 'dare':
-					this.mode = 'dare';
-					send('Set Truth or Dare mode to only dare');
-					break;
+				this.mode = 'dare';
+				send('Set Truth or Dare mode to only dare');
+				break;
 				case 'both':
-					this.mode = 'both';
-					send('Set Truth or Dare mode to both');
-					break;
+				this.mode = 'both';
+				send('Set Truth or Dare mode to both');
+				break;
 				default:
-					send('Invalid mode!');
+				send('Invalid mode!');
 			}
 		}
 	}else {
@@ -191,27 +200,27 @@ tdare.run = function(args) {
 		var msg;
 
 		for(var i = 0; i < 10; i++){
-		 	if(nb1 !== nb2){
-		 		break;
-		 	}
-		 	nb1 = rand(0, tdareStack.length);
-		 	nb2 = rand(0, tdareStack.length);
-		 	debug('[TDARE] Looped for rand');
+			if(nb1 !== nb2){
+				break;
+			}
+			nb1 = rand(0, tdareStack.length);
+			nb2 = rand(0, tdareStack.length);
+			debug('[TDARE] Looped for rand');
 		}
 		debug('[TDARE] Got ' + nb1 + ' index for first person');
 		debug('[TDARE] Got ' + nb2 + ' index for first person');
 
 		switch(this.mode){
-				case 'truth':
-					send(tdareStack[nb1] + ' asks ' + tdareStack[nb2]);
-					break;
-				case 'dare':
-					send(tdareStack[nb1] + ' dares ' + tdareStack[nb2]);
-					break;
-				case 'both':
-					msg = td > 0 ? ' asks ' : ' dares ';
-					send(tdareStack[nb1] + msg + tdareStack[nb2]);
-					break;
+			case 'truth':
+			send(tdareStack[nb1] + ' asks ' + tdareStack[nb2]);
+			break;
+			case 'dare':
+			send(tdareStack[nb1] + ' dares ' + tdareStack[nb2]);
+			break;
+			case 'both':
+			msg = td > 0 ? ' asks ' : ' dares ';
+			send(tdareStack[nb1] + msg + tdareStack[nb2]);
+			break;
 		}
 	}
 };
@@ -250,7 +259,18 @@ whoisfat.run = function(args) {
 };
 
 //All the CMDs, used for listing/searching
-var cmds = [about, countdown, help, list, say, tadd, tdare, tlist, trmv, whoisfat];
+var cmds = [
+about, 
+countdown,
+fact,
+help,
+list,
+say,
+tadd,
+tdare,
+list,
+trmv,
+whoisfat];
 
 //End of CMD area
 
@@ -267,6 +287,13 @@ function parseCmd(msg) {
 	}
 }
 
+//Utils area
+
+function debug(msg) {
+	if(doDebug)
+		console.log("[DEBUG]  " + msg + "\n");
+}
+
 //By: http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
 function stringStartsWith(string, prefix) {
 	return string.slice(0, prefix.length) == prefix;
@@ -274,7 +301,7 @@ function stringStartsWith(string, prefix) {
 
 //Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
 function rand(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
+	return Math.floor(Math.random() * (max - min) + min);
 }
 
 function syntaxError() {
@@ -282,16 +309,16 @@ function syntaxError() {
 	send('Invalid syntax! Use\n' + any + 'help [CMD] to see how to use!');
 }
 
-function debug(msg) {
-	if(doDebug)
-		console.log("[DEBUG]  " + msg + "\n");
+function factorial(x) {
+	if(x <= 1)
+		return 1;
+	else
+		return x * factorial(x -1);
 }
 
-function send(msg){
-	setTimeout(function() {
-		spam(msg);
-	}, 100);
-}
+//End of utils area
+
+//Send msgs 'engine'
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function dispatch(target, eventType, msg) {
@@ -299,6 +326,12 @@ function dispatch(target, eventType, msg) {
 	evt.initTextEvent (eventType, true, true, window, msg, 0, "en-US");
 	target.focus();
 	target.dispatchEvent(evt);
+}
+
+function send(msg){
+	setTimeout(function() {
+		spam(msg);
+	}, 100);
 }
 
 //Based on http://macr1408.260mb.org/wspam2.html
@@ -310,3 +343,5 @@ function spam(msg){
 	input[0].click();
 	setTimeout(function(){ }, 50);
 }
+
+//End of send msgs 'engine'
