@@ -57,7 +57,7 @@ var about = new cmd('about', '', 'About the Bot');
 about.run = function(args) {
 	send('WhatsApp Bot | Made by I3399I');
 	send('Version ' + version);
-	send('Source code at: http://bit.ly/1LMtENe');
+	send('Source code at: http://bit.ly/l3399l');
 };
 
 var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms');
@@ -253,6 +253,15 @@ trmv.run = function(args) {
 		send('No person with name ' + p + ' found');
 };
 
+var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input');
+wolfr.run = function(args) {
+	args[0] = '';
+	var input = args.join(' ');
+	input = input.slice(1, input.length);
+	var link = 'http://www.wolframalpha.com/input/?i=';
+	send(link + encodeURIComponent(input));
+}
+
 //All the CMDs, used for listing/searching
 var cmds = [
 about, 
@@ -264,7 +273,8 @@ say,
 tadd,
 tdare,
 list,
-trmv
+trmv,
+wolfr
 ];
 
 //End of CMD area
