@@ -140,7 +140,6 @@ var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
 	send('Avaible CMDs:\n');
 	send('<---------->');
-
 	for (var i = 0; i < cmds.length; i++) {
 		send(cmds[i].nm);
 	}
@@ -272,7 +271,7 @@ list,
 say,
 tadd,
 tdare,
-list,
+tlist,
 trmv,
 wolfr
 ];
