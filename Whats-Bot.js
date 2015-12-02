@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    http://www.3399.podserver.info/
-// @version      1.5 BETA
+// @version      1.8 BETA
 // @description  A whatsapp bot just for fun
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -138,13 +138,15 @@ help.run = function(args) {
 
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
-	send('Avaible CMDs:\n');
-	send('<---------->');
+	var msg = '';
+	msg = msg.concat('\tAvaible CMDs:\n');
+	msg = msg.concat('➖➖➖➖➖➖\n');
 	for (var i = 0; i < cmds.length; i++) {
-		send(cmds[i].nm);
+		msg = msg.concat('\t' + any + cmds[i].nm + '\n');
 	}
-	send('<---------->');
-	send('\nUse ' + any + 'help [CMD] to see how to use');
+	msg = msg.concat('➖➖➖➖➖➖\n');
+	send(msg);
+	send('Use ' + any + 'help [CMD] for info');
 };
 
 var say = new cmd('say', '[msg]', 'A command that makes me say something');
