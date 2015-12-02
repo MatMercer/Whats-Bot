@@ -24,6 +24,9 @@ var lastId;
 var msgText;
 var version = '1.8 BETA';
 
+//Emoji used to separate stuff
+var block_divider = '➖➖➖➖➖➖\n';
+
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
 	msgText = $('#main > div > div.pane-chat-msgs.pane-chat-body.lastTabIndex > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text').html();
@@ -139,17 +142,17 @@ help.run = function(args) {
 var list = new cmd('list', '', 'Lists all the CMDs avaible');
 list.run = function(args) {
 	var msg = '';
-	msg = msg.concat('\tAvaible CMDs:\n');
-	msg = msg.concat('➖➖➖➖➖➖\n');
+	msg = msg.concat('\tAvaible CMDs\n');
+	msg = msg.concat(block_divider);
 	for (var i = 0; i < cmds.length; i++) {
 		msg = msg.concat('\t' + any + cmds[i].nm + '\n');
 	}
-	msg = msg.concat('➖➖➖➖➖➖\n');
+	msg = msg.concat(block_divider);
 	send(msg);
 	send('Use ' + any + 'help [CMD] for info');
 };
 
-var say = new cmd('say', '[msg]', 'A command that makes me say something');
+var say = new cmd('say', '[msg]', 'A CMD that makes me say something');
 say.run = function(args) {
 	args[0] = "";
 	send(args.join(' '));
@@ -228,9 +231,14 @@ tdare.run = function(args) {
 
 var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD');
 tlist.run = function(args) {
+	var msg = '';
+	msg = msg.concat('TdareStack List\n');
+	msg = msg.concat(block_divider);
 	for (var i = 0; i < tdareStack.length; i++) {
-		send(tdareStack[i]);
+		msg = msg.concat('\t' + tdareStack[i] + '\n');
 	}
+	msg = msg.concat(block_divider);
+	send(msg);
 };
 
 var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD');
