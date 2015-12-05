@@ -17,6 +17,9 @@ var any = '/';
 //Do debug or not
 var doDebug = true;
 
+//Msg selectors
+var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text'
+
 //General vars
 var args;
 var id;
@@ -29,8 +32,8 @@ var block_divider = '➖➖➖➖➖➖\n';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
-	msgText = $('#main > div > div.pane-chat-msgs.pane-chat-body.lastTabIndex > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text').html();
-	id = $('#main > div > div.pane-chat-msgs.pane-chat-body.lastTabIndex > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text').attr('data-reactid');
+	msgText = $(msgTextSelect).html();
+	id = $(msgTextSelect).attr('data-reactid');
 	if (lastId !== id){
 		if (stringStartsWith(msgText, any)) {
 			debug("Detected a command");
