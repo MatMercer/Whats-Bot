@@ -146,7 +146,7 @@ help.run = function(args) {
     var found = false;
 
     for (var i = 0; i < cmds.length; i++) {
-        if (args[1] == cmds[i].nm) {
+        if (args[1].toLowerCase() == cmds[i].nm.toLowerCase()) {
             debug('[HELP CMD] Found ' + args[1] + ' CMD');
             send(cmds[i].nm + '\n' + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
             found = true;
