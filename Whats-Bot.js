@@ -19,6 +19,7 @@ var doDebug = true;
 
 //Msg selectors
 var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text';
+var msgAuthorSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > h3 > span > span.text-clickable > span';
 
 //General vars
 var args;
@@ -32,6 +33,8 @@ var block_divider = '➖➖➖➖➖➖\n';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
+	msgAuthor = $(msgAuthorSelect).html();
+	console.log(msgAuthor);
     msgText = $(msgTextSelect).html();
     id = $(msgTextSelect).attr('data-reactid');
     if (lastId !== id) {
@@ -291,7 +294,7 @@ var cmds = [
 //Parse the CMDs
 function parseCmd(msg) {
     msg = msg.slice(1, msg.length);
-    debug('Got '' + msg + '' CMD request.');
+    debug('Got "' + msg + '" CMD request.');
     args = msg.split(' ');
     for (var i = 0; i < cmds.length; i++) {
         if (args[0] == cmds[i].nm) {
@@ -300,10 +303,10 @@ function parseCmd(msg) {
                 cmds[i].run(args);
             } else {
                 debug(cmds[i].nm + ' is not enabled!');
-                send(cmds[i].nm + ' is not enabled!');
+                send(cmds[i].nm + ' is not enabled!')
             }
         }
-    }
+    };
 }
 
 //Utils area
