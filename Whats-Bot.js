@@ -40,6 +40,12 @@ var msgTypes = [
     'msg msg-group'
 ];
 
+//Var used to enable everyone
+var enableEveryone = false;
+
+//Var used to permit people
+var granted = [];
+
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
 
@@ -54,7 +60,7 @@ $(document).bind('DOMNodeInserted', function(e) {
         } else if (msgBoxSubType == 'message message-out tail') {
             msgAuthor = owner;
         }
-        console.log(msgAuthor);
+        debug('MSG AUTHOR: ' + msgAuthor);
         msgText = $(msgTextSelect).html();
         if (stringStartsWith(msgText, any)) {
             debug('Detected a command');
@@ -141,10 +147,27 @@ fact.run = function(args) {
         syntaxError();
 };
 
+var grant = new cmd('Grant', '[NAME]', 'Grants someone\'s access to the commands', true);
+grant.run = function(args) {
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
+    args[0] = '';
+    var p = args.join(' ').substring(1);
+
+    granted[granted.length] = p.toLowerCase();
+    send(p + ' has now access to the commands');
+};
+
 var help = new cmd('Help', '[CMD]', 'Used for help', true);
 help.run = function(args) {
-    var found = false;
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
 
+    var found = false;
     for (var i = 0; i < cmds.length; i++) {
         if (args[1].toLowerCase() == cmds[i].nm.toLowerCase()) {
             debug('[HELP CMD] Found ' + args[1] + ' CMD');
@@ -168,6 +191,26 @@ list.run = function(args) {
     msg = msg.concat(block_divider);
     send(msg);
     send('Use ' + any + 'help [CMD] for info');
+};
+
+var refuse = new cmd('Refuse', '[NAME]', 'Makes someone unable to execute commands', true);
+refuse.run = function(args) {
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
+    args[0] = '';
+    var p = args.join(' ').substring(1);
+
+    var index = granted.indexOf(p.toLowerCase());
+
+    debug(['[REFUSE] Got ' + index + ' index']);
+
+    if (index > -1) {
+        granted.splice(index, 1);
+        send(p + ' can\'t execute commands anymore');
+    } else
+        send('No person with name ' + p + ' found');
 };
 
 var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
@@ -302,8 +345,10 @@ var cmds = [
     about,
     countdown,
     fact,
+    grant,
     help,
     list,
+    refuse,
     say,
     tadd,
     tdare,
@@ -320,19 +365,19 @@ function parseCmd(msg) {
     msg = msg.slice(1, msg.length);
     debug('Got "' + msg + '" CMD request.');
     args = msg.split(' ');
+    var permited = false;
     for (var i = 0; i < cmds.length; i++) {
-        if (args[0] == cmds[i].nm.toLowerCase()) {
+        if (args[0] == cmds[i].nm.toLowerCase() && msgAuthor == owner || enableEveryone || isGranted(msgAuthor) && cmds[i].isOn) {
             if (cmds[i].isOn) {
+                permited = true;
                 debug('Executed ' + cmds[i].nm + ' CMD');
                 cmds[i].run(args);
                 break;
-            } else {
-                debug(cmds[i].nm + ' is not enabled!');
-                send(cmds[i].nm + ' is not enabled!');
-                break;
             }
         }
-    };
+    }
+    if (!permited)
+        send('This CMD is not enabled or you don\'t have perms to execute it');
 }
 
 //Utils area
@@ -349,11 +394,23 @@ function factorial(x) {
         return x * factorial(x - 1);
 }
 
+function isGranted(p) {
+    var grant = false;
+    for (var i = 0; i < granted.length; i++) {
+        if (p.toLowerCase == granted[i]) {
+            grant = true;
+            return grant;
+        }
+    }
+    return grant;
+}
+
 function isMsg(type) {
-    found = false;
+    var found = false;
     for (var i = 0; i < msgTypes.length; i++) {
         if (type === msgTypes[i]) {
             found = true;
+            break;
         }
     }
     return found;
