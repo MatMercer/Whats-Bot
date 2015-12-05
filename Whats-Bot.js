@@ -58,7 +58,7 @@ $(document).bind('DOMNodeInserted', function(e) {
         msgText = $(msgTextSelect).html();
         if (stringStartsWith(msgText, any)) {
             debug('Detected a command');
-            parseCmd(msgText);
+            parseCmd(msgText.toLowerCase());
         }
         lastId = id;
     }
@@ -81,14 +81,14 @@ function cmd(nm, syntax, desc, isOn) {
 var tdareStack = [];
 //End of vars area
 
-var about = new cmd('about', '', 'About the Bot', true);
+var about = new cmd('About', '', 'About the Bot', true);
 about.run = function(args) {
     send('WhatsApp Bot | Made by I3399I');
     send('Version ' + version);
     send('Source code at: http://bit.ly/l3399l');
 };
 
-var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
+var countdown = new cmd('Countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
 countdown.run = function(args) {
     var i = 0;
 
@@ -133,7 +133,7 @@ countdown.run = function(args) {
     }
 };
 
-var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number', true);
+var fact = new cmd('Fact', '[NUMBER]', 'Returns the factorial of a x number', true);
 fact.run = function(args) {
     if (args.length > 1 && !isNaN(args[1])) {
         send(factorial(parseInt(args[1], 10)));
@@ -141,14 +141,14 @@ fact.run = function(args) {
         syntaxError();
 };
 
-var help = new cmd('help', '[CMD]', 'Used for help', true);
+var help = new cmd('Help', '[CMD]', 'Used for help', true);
 help.run = function(args) {
     var found = false;
 
     for (var i = 0; i < cmds.length; i++) {
         if (args[1] == cmds[i].nm) {
             debug('[HELP CMD] Found ' + args[1] + ' CMD');
-            send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + '\n' + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
+            send(cmds[i].nm + '\n' + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
             found = true;
         }
     }
@@ -157,7 +157,7 @@ help.run = function(args) {
         send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
-var list = new cmd('list', '', 'Lists all the CMDs avaible', true);
+var list = new cmd('List', '', 'Lists all the CMDs avaible', true);
 list.run = function(args) {
     var msg = '';
     msg = msg.concat('\tAvaible CMDs\n');
@@ -170,13 +170,13 @@ list.run = function(args) {
     send('Use ' + any + 'help [CMD] for info');
 };
 
-var say = new cmd('say', '[msg]', 'A CMD that makes me say something', true);
+var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
     args[0] = '';
     send(args.join(' '));
 };
 
-var tadd = new cmd('tadd', '[NAME]', 'Adds a person to tdare CMD', true);
+var tadd = new cmd('TAdd', '[NAME]', 'Adds a person to tdare CMD', true);
 tadd.run = function(args) {
     if (args.length < 2) {
         syntaxError();
@@ -189,7 +189,7 @@ tadd.run = function(args) {
     send('Added ' + p + ' person to tdareStack');
 };
 
-var tdare = new cmd('tdare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
+var tdare = new cmd('TDare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
 tdare.mode = 'both';
 tdare.run = function(args) {
     if (args.length > 2) {
@@ -251,7 +251,7 @@ tdare.run = function(args) {
     }
 };
 
-var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD', true);
+var tlist = new cmd('TList', '', 'Lists all the persons from tdare CMD', true);
 tlist.run = function(args) {
     var msg = '';
     msg = msg.concat('TdareStack List\n');
@@ -263,7 +263,7 @@ tlist.run = function(args) {
     send(msg);
 };
 
-var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD', true);
+var trmv = new cmd('TRmv', '[NAME]', 'Removes a person from tdare CMD', true);
 trmv.run = function(args) {
     if (args.length < 2) {
         syntaxError();
@@ -283,12 +283,12 @@ trmv.run = function(args) {
         send('No person with name ' + p + ' found');
 };
 
-var whoami = new cmd('whoami', '', 'Returns who are you', true);
+var whoami = new cmd('WhoAmI', '', 'Returns who are you', true);
 whoami.run = function(args) {
-	send('You are ' + msgAuthor);
+    send('You are ' + msgAuthor);
 };
 
-var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
+var wolfr = new cmd('Wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
 wolfr.run = function(args) {
     args[0] = '';
     var input = args.join(' ');
@@ -321,7 +321,7 @@ function parseCmd(msg) {
     debug('Got "' + msg + '" CMD request.');
     args = msg.split(' ');
     for (var i = 0; i < cmds.length; i++) {
-        if (args[0] == cmds[i].nm) {
+        if (args[0] == cmds[i].nm.toLowerCase()) {
             if (cmds[i].isOn) {
                 debug('Executed ' + cmds[i].nm + ' CMD');
                 cmds[i].run(args);
