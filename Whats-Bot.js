@@ -36,7 +36,7 @@ $(document).bind('DOMNodeInserted', function(e) {
     id = $(msgTextSelect).attr('data-reactid');
     if (lastId !== id) {
         if (stringStartsWith(msgText, any)) {
-            debug("Detected a command");
+            debug('Detected a command');
             parseCmd(msgText);
         }
     }
@@ -126,14 +126,14 @@ help.run = function(args) {
 
     for (var i = 0; i < cmds.length; i++) {
         if (args[1] == cmds[i].nm) {
-            debug("[HELP CMD] Found " + args[1] + " CMD");
-            send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + "\n" + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
+            debug('[HELP CMD] Found ' + args[1] + ' CMD');
+            send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + '\n' + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
             found = true;
         }
     }
 
     if (!found)
-        send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
+        send('No CMD with name '' + args[1] + '' found, use\n' + any + 'list to see all the CMDs');
 };
 
 var list = new cmd('list', '', 'Lists all the CMDs avaible', true);
@@ -151,7 +151,7 @@ list.run = function(args) {
 
 var say = new cmd('say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
-    args[0] = "";
+    args[0] = '';
     send(args.join(' '));
 };
 
@@ -291,12 +291,12 @@ var cmds = [
 //Parse the CMDs
 function parseCmd(msg) {
     msg = msg.slice(1, msg.length);
-    debug("Got '" + msg + "' CMD request.");
+    debug('Got '' + msg + '' CMD request.');
     args = msg.split(' ');
     for (var i = 0; i < cmds.length; i++) {
         if (args[0] == cmds[i].nm) {
             if (cmds[i].isOn) {
-                debug("Executed " + cmds[i].nm + " CMD");
+                debug('Executed ' + cmds[i].nm + ' CMD');
                 cmds[i].run(args);
             } else {
                 debug(cmds[i].nm + ' is not enabled!');
@@ -310,7 +310,7 @@ function parseCmd(msg) {
 
 function debug(msg) {
     if (doDebug)
-        console.log("[DEBUG]  " + msg + "\n");
+        console.log('[DEBUG]  ' + msg + '\n');
 }
 
 function factorial(x) {
@@ -341,8 +341,8 @@ function syntaxError() {
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function dispatch(target, eventType, msg) {
-    var evt = document.createEvent("TextEvent");
-    evt.initTextEvent(eventType, true, true, window, msg, 0, "en-US");
+    var evt = document.createEvent('TextEvent');
+    evt.initTextEvent(eventType, true, true, window, msg, 0, 'en-US');
     target.focus();
     target.dispatchEvent(evt);
 }
@@ -356,9 +356,9 @@ function send(msg) {
 //Based on http://macr1408.260mb.org/wspam2.html
 function spam(msg) {
     texto = msg;
-    campo = document.getElementsByClassName("input")[1];
-    dispatch(campo, "textInput", texto);
-    var input = document.getElementsByClassName("icon btn-icon icon-send");
+    campo = document.getElementsByClassName('input')[1];
+    dispatch(campo, 'textInput', texto);
+    var input = document.getElementsByClassName('icon btn-icon icon-send');
     input[0].click();
     setTimeout(function() {}, 50);
 }
