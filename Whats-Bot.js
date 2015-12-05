@@ -18,7 +18,7 @@ var any = '/';
 var doDebug = true;
 
 //Msg selectors
-var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text'
+var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text';
 
 //General vars
 var args;
@@ -75,11 +75,11 @@ countdown.run = function(args) {
         syntaxError();
         return;
     }
-    var times = parseInt(args[1]);
+    var times = parseInt(args[1], 10);
     if (isNaN(times))
         times = 5;
     debug('[COUNTDOWN] Got ' + times + ' times');
-    var ms = parseInt(args[2]);
+    var ms = parseInt(args[2], 10);
     if (isNaN(ms))
         ms = 500;
     ms -= 100;
@@ -108,14 +108,14 @@ countdown.run = function(args) {
                 send(times);
                 loop();
             }
-        }, ms)
-    };
+        }, ms);
+    }
 };
 
 var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number', true);
 fact.run = function(args) {
     if (args.length > 1 && !isNaN(args[1])) {
-        send(factorial(parseInt(args[1])));
+        send(factorial(parseInt(args[1], 10)));
     } else
         syntaxError();
 };
@@ -188,6 +188,7 @@ tdare.run = function(args) {
                     break;
                 default:
                     send('Invalid mode!');
+                    break;
             }
         }
     } else {
@@ -221,6 +222,9 @@ tdare.run = function(args) {
             case 'both':
                 msg = td > 0 ? ' asks ' : ' dares ';
                 send(tdareStack[nb1] + msg + tdareStack[nb2]);
+                break;
+            default:
+                debug('[TDARE] ERROR! Invalid mode!');
                 break;
         }
     }
@@ -296,7 +300,7 @@ function parseCmd(msg) {
                 cmds[i].run(args);
             } else {
                 debug(cmds[i].nm + ' is not enabled!');
-                send(cmds[i].nm + ' is not enabled!')
+                send(cmds[i].nm + ' is not enabled!');
             }
         }
     }
