@@ -19,12 +19,15 @@ var doDebug = true;
 
 //Msg selectors
 var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text';
+var msgTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last';
+var msgSubTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div';
 var msgAuthorSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > h3 > span > span.text-clickable > span';
 
 //General vars
 var args;
 var id;
 var lastId;
+var msgAuthor;
 var msgText;
 var version = '2.3 BETA';
 
@@ -33,8 +36,15 @@ var block_divider = '➖➖➖➖➖➖\n';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
-	msgAuthor = $(msgAuthorSelect).html();
-	console.log(msgAuthor);
+    msgBoxType = $(msgTypeSelect).attr('class');
+    msgBoxSubType = $(msgSubTypeSelect).attr('class');
+    if (msgBoxType == 'msg msg-group' || msgBoxType == 'msg msg-continuation msg-group') {
+        msgAuthor = $(msgAuthorSelect).html();
+    }
+    else if (msgBoxSubType == 'message message-out tail') {
+        msgAuthor = 'owner';
+    }
+    console.log(msgAuthor);
     msgText = $(msgTextSelect).html();
     id = $(msgTextSelect).attr('data-reactid');
     if (lastId !== id) {
@@ -136,7 +146,7 @@ help.run = function(args) {
     }
 
     if (!found)
-        send('No CMD with name '' + args[1] + '' found, use\n' + any + 'list to see all the CMDs');
+        send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
 var list = new cmd('list', '', 'Lists all the CMDs avaible', true);
