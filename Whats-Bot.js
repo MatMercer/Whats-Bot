@@ -30,6 +30,7 @@ var lastId;
 var msgAuthor;
 var msgText;
 var version = '2.3 BETA';
+var owner = 'Me';
 
 //Var used to detect msgs
 var msgTypes = [
@@ -48,10 +49,10 @@ $(document).bind('DOMNodeInserted', function(e) {
     id = $(msgTextSelect).attr('data-reactid');
     if (isMsg(msgBoxType) && lastId !== id) {
         msgBoxSubType = $(msgSubTypeSelect).attr('class');
-        if (msgBoxType == 'msg msg-group' && msgBoxSubType !== 'message message-out') {
+        if (msgBoxType == 'msg msg-group' && msgBoxSubType !== 'message message-out' && msgBoxSubType !== 'message message-out tail') {
             msgAuthor = $(msgAuthorSelect).html();
         } else if (msgBoxSubType == 'message message-out tail') {
-            msgAuthor = 'owner';
+            msgAuthor = owner;
         }
         console.log(msgAuthor);
         msgText = $(msgTextSelect).html();
@@ -282,6 +283,11 @@ trmv.run = function(args) {
         send('No person with name ' + p + ' found');
 };
 
+var whoami = new cmd('whoami', '', 'Returns who are you', true);
+whoami.run = function(args) {
+	send('You are ' + msgAuthor);
+};
+
 var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
 wolfr.run = function(args) {
     args[0] = '';
@@ -303,7 +309,8 @@ var cmds = [
     tdare,
     tlist,
     trmv,
-    wolfr
+    wolfr,
+    whoami
 ];
 
 //End of CMD area
