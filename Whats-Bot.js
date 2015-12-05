@@ -41,10 +41,11 @@ $(document).bind('DOMNodeInserted', function(e) {
 });
 
 //CMD constructor
-function cmd(nm, syntax, desc) {
+function cmd(nm, syntax, desc, enabled) {
 	this.nm = nm;
 	this.syntax = syntax;
 	this.desc = desc;
+	this.enabled = enabled;
 	this.run = function (args) {
 		console.log('EXECUTED ' + this.nm + ' IN DEFAULT MODE');
 	};
@@ -308,21 +309,6 @@ function debug(msg) {
 		console.log("[DEBUG]  " + msg + "\n");
 }
 
-//By: http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
-function stringStartsWith(string, prefix) {
-	return string.slice(0, prefix.length) == prefix;
-}
-
-//Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
-function rand(min, max) {
-	return Math.floor(Math.random() * (max - min) + min);
-}
-
-function syntaxError() {
-	debug('Syntax Error!');
-	send('Invalid syntax! Use\n' + any + 'help [CMD] to see how to use!');
-}
-
 function factorial(x) {
 	if(x <= 1)
 		return 1;
@@ -330,9 +316,24 @@ function factorial(x) {
 		return x * factorial(x -1);
 }
 
+//Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
+function rand(min, max) {
+	return Math.floor(Math.random() * (max - min) + min);
+}
+
+//By: http://stackoverflow.com/questions/646628/how-to-check-if-a-string-startswith-another-string
+function stringStartsWith(string, prefix) {
+	return string.slice(0, prefix.length) == prefix;
+}
+
+function syntaxError() {
+	debug('Syntax Error!');
+	send('Invalid syntax! Use\n' + any + 'help [CMD] to see how to use!');
+}
+
 //End of utils area
 
-//Send msgs 'engine'
+//Send msgs
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function dispatch(target, eventType, msg) {
@@ -358,4 +359,4 @@ function spam(msg){
 	setTimeout(function(){ }, 50);
 }
 
-//End of send msgs 'engine'
+//End of send msgs
