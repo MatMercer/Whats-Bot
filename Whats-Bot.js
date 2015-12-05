@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    WhatsApp Bot
-// @version      2.0 BETA
+// @version      2.3 BETA
 // @description  A whatsapp web bot
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -26,7 +26,7 @@ var args;
 var id;
 var lastId;
 var msgText;
-var version = '2.0 BETA';
+var version = '2.3 BETA';
 
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
