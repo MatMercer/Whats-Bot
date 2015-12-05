@@ -31,29 +31,36 @@ var msgAuthor;
 var msgText;
 var version = '2.3 BETA';
 
+//Var used to detect msgs
+var msgTypes = [
+    'msg',
+    'msg msg-continuation',
+    'msg msg-continuation msg-group',
+    'msg msg-group'
+];
+
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
     msgBoxType = $(msgTypeSelect).attr('class');
-    msgBoxSubType = $(msgSubTypeSelect).attr('class');
-    if (msgBoxType == 'msg msg-group' || msgBoxType == 'msg msg-continuation msg-group') {
-        msgAuthor = $(msgAuthorSelect).html();
-    }
-    else if (msgBoxSubType == 'message message-out tail') {
-        msgAuthor = 'owner';
-    }
-    console.log(msgAuthor);
-    msgText = $(msgTextSelect).html();
     id = $(msgTextSelect).attr('data-reactid');
-    if (lastId !== id) {
+    if (isMsg(msgBoxType) && lastId !== id) {
+        msgBoxSubType = $(msgSubTypeSelect).attr('class');
+        if (msgBoxType == 'msg msg-group' && msgBoxSubType !== 'message message-out') {
+            msgAuthor = $(msgAuthorSelect).html();
+        } else if (msgBoxSubType == 'message message-out tail') {
+            msgAuthor = 'owner';
+        }
+        console.log(msgAuthor);
+        msgText = $(msgTextSelect).html();
         if (stringStartsWith(msgText, any)) {
             debug('Detected a command');
             parseCmd(msgText);
         }
+        lastId = id;
     }
-    lastId = id;
 });
 
 //CMD constructor
@@ -311,9 +318,11 @@ function parseCmd(msg) {
             if (cmds[i].isOn) {
                 debug('Executed ' + cmds[i].nm + ' CMD');
                 cmds[i].run(args);
+                break;
             } else {
                 debug(cmds[i].nm + ' is not enabled!');
-                send(cmds[i].nm + ' is not enabled!')
+                send(cmds[i].nm + ' is not enabled!');
+                break;
             }
         }
     };
@@ -331,6 +340,16 @@ function factorial(x) {
         return 1;
     else
         return x * factorial(x - 1);
+}
+
+function isMsg(type) {
+    found = false;
+    for (var i = 0; i < msgTypes.length; i++) {
+        if (type === msgTypes[i]) {
+            found = true;
+        }
+    }
+    return found;
 }
 
 //Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
