@@ -41,11 +41,11 @@ $(document).bind('DOMNodeInserted', function(e) {
 });
 
 //CMD constructor
-function cmd(nm, syntax, desc, enabled) {
+function cmd(nm, syntax, desc, isOn) {
 	this.nm = nm;
 	this.syntax = syntax;
 	this.desc = desc;
-	this.enabled = enabled;
+	this.isOn = isOn;
 	this.run = function (args) {
 		console.log('EXECUTED ' + this.nm + ' IN DEFAULT MODE');
 	};
@@ -57,14 +57,14 @@ function cmd(nm, syntax, desc, enabled) {
 var tdareStack = [];
 //End of vars area
 
-var about = new cmd('about', '', 'About the Bot');
+var about = new cmd('about', '', 'About the Bot', true);
 about.run = function(args) {
 	send('WhatsApp Bot | Made by I3399I');
 	send('Version ' + version);
 	send('Source code at: http://bit.ly/l3399l');
 };
 
-var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms');
+var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
 countdown.run = function(args) {
 	var useIt = false;
 	if(!useIt){
@@ -115,7 +115,7 @@ countdown.run = function(args) {
 	};
 };
 
-var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number');
+var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number', true);
 fact.run = function(args) {
 	if(args.length > 1 && !isNaN(args[1])){
 		send(factorial(parseInt(args[1])));
@@ -124,7 +124,7 @@ fact.run = function(args) {
 		syntaxError();
 };
 
-var help = new cmd('help', '[CMD]', 'Used for help');
+var help = new cmd('help', '[CMD]', 'Used for help', true);
 help.run = function(args) {
 	var found = false;
 
@@ -140,7 +140,7 @@ help.run = function(args) {
 		send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
-var list = new cmd('list', '', 'Lists all the CMDs avaible');
+var list = new cmd('list', '', 'Lists all the CMDs avaible', true);
 list.run = function(args) {
 	var msg = '';
 	msg = msg.concat('\tAvaible CMDs\n');
@@ -153,13 +153,13 @@ list.run = function(args) {
 	send('Use ' + any + 'help [CMD] for info');
 };
 
-var say = new cmd('say', '[msg]', 'A CMD that makes me say something');
+var say = new cmd('say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
 	args[0] = "";
 	send(args.join(' '));
 };
 
-var tadd = new cmd('tadd', '[NAME]', 'Adds a person to tdare CMD');
+var tadd = new cmd('tadd', '[NAME]', 'Adds a person to tdare CMD', true);
 tadd.run = function(args) {
 	if(args.length < 2){
 		syntaxError();
@@ -172,7 +172,7 @@ tadd.run = function(args) {
 	send('Added ' + p + ' person to tdareStack');
 };
 
-var tdare = new cmd('tdare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.');
+var tdare = new cmd('tdare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
 tdare.mode = 'both';
 tdare.run = function(args) {
 	if(args.length > 2){
@@ -230,7 +230,7 @@ tdare.run = function(args) {
 	}
 };
 
-var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD');
+var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD', true);
 tlist.run = function(args) {
 	var msg = '';
 	msg = msg.concat('TdareStack List\n');
@@ -242,7 +242,7 @@ tlist.run = function(args) {
 	send(msg);
 };
 
-var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD');
+var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD', true);
 trmv.run = function(args) {
 	if(args.length < 2){
 		syntaxError();
@@ -263,7 +263,7 @@ trmv.run = function(args) {
 		send('No person with name ' + p + ' found');
 };
 
-var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input');
+var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
 wolfr.run = function(args) {
 	args[0] = '';
 	var input = args.join(' ');
@@ -296,8 +296,14 @@ function parseCmd(msg) {
 	args = msg.split(' ');
 	for (var i = 0; i < cmds.length; i++) {
 		if(args[0] == cmds[i].nm){
-			debug("Executed " + args[0] + " CMD");
-			cmds[i].run(args);
+			if (cmds[i].isOn) {
+				debug("Executed " + cmds[i].nm + " CMD");
+				cmds[i].run(args);
+			}
+			else {
+				debug(cmds[i].nm + ' is not enabled!');
+				send(cmds[i].nm + ' is not enabled!')
+			}
 		}
 	}
 }
