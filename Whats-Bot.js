@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    WhatsApp Bot
-// @version      2.3 BETA
+// @version      2.5 BETA
 // @description  A whatsapp web bot
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -29,7 +29,7 @@ var id;
 var lastId;
 var msgAuthor;
 var msgText;
-var version = '2.3 BETA';
+var version = '2.5 BETA';
 var owner = 'Me';
 
 //Var used to detect msgs
