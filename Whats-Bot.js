@@ -18,29 +18,56 @@ var any = '/';
 var doDebug = true;
 
 //Msg selectors
-var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text'
+var msgTextSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > div.message-text > span.emojitext.selectable-text';
+var msgTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last';
+var msgSubTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div';
+var msgAuthorSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > h3 > span > span.text-clickable > span';
 
 //General vars
 var args;
 var id;
 var lastId;
+var msgAuthor;
 var msgText;
 var version = '3.0';
+var owner = 'Me';
+
+//Var used to detect msgs
+var msgTypes = [
+    'msg',
+    'msg msg-continuation',
+    'msg msg-continuation msg-group',
+    'msg msg-group'
+];
+
+//Var used to enable everyone
+var enableEveryone = false;
+
+//Var used to permit people
+var granted = [];
 
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
 
 //Get the CMD request
 $(document).bind('DOMNodeInserted', function(e) {
-    msgText = $(msgTextSelect).html();
+    msgBoxType = $(msgTypeSelect).attr('class');
     id = $(msgTextSelect).attr('data-reactid');
-    if (lastId !== id) {
-        if (stringStartsWith(msgText, any)) {
-            debug("Detected a command");
-            parseCmd(msgText);
+    if (isMsg(msgBoxType) && lastId !== id) {
+        msgBoxSubType = $(msgSubTypeSelect).attr('class');
+        if (msgBoxType == 'msg msg-group' && msgBoxSubType !== 'message message-out' && msgBoxSubType !== 'message message-out tail') {
+            msgAuthor = $(msgAuthorSelect).html();
+        } else if (msgBoxSubType == 'message message-out tail') {
+            msgAuthor = owner;
         }
+        debug('MSG AUTHOR: ' + msgAuthor);
+        msgText = $(msgTextSelect).html();
+        if (stringStartsWith(msgText, any)) {
+            debug('Detected a command');
+            parseCmd(msgText.toLowerCase());
+        }
+        lastId = id;
     }
-    lastId = id;
 });
 
 //CMD constructor
@@ -60,14 +87,14 @@ function cmd(nm, syntax, desc, isOn) {
 var tdareStack = [];
 //End of vars area
 
-var about = new cmd('about', '', 'About the Bot', true);
+var about = new cmd('About', '', 'About the Bot', true);
 about.run = function(args) {
     send('WhatsApp Bot | Made by I3399I');
     send('Version ' + version);
     send('Source code at: http://bit.ly/l3399l');
 };
 
-var countdown = new cmd('countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
+var countdown = new cmd('Countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
 countdown.run = function(args) {
     var i = 0;
 
@@ -75,11 +102,11 @@ countdown.run = function(args) {
         syntaxError();
         return;
     }
-    var times = parseInt(args[1]);
+    var times = parseInt(args[1], 10);
     if (isNaN(times))
         times = 5;
     debug('[COUNTDOWN] Got ' + times + ' times');
-    var ms = parseInt(args[2]);
+    var ms = parseInt(args[2], 10);
     if (isNaN(ms))
         ms = 500;
     ms -= 100;
@@ -108,26 +135,43 @@ countdown.run = function(args) {
                 send(times);
                 loop();
             }
-        }, ms)
-    };
+        }, ms);
+    }
 };
 
-var fact = new cmd('fact', '[NUMBER]', 'Returns the factorial of a x number', true);
+var fact = new cmd('Fact', '[NUMBER]', 'Returns the factorial of a x number', true);
 fact.run = function(args) {
     if (args.length > 1 && !isNaN(args[1])) {
-        send(factorial(parseInt(args[1])));
+        send(factorial(parseInt(args[1], 10)));
     } else
         syntaxError();
 };
 
-var help = new cmd('help', '[CMD]', 'Used for help', true);
-help.run = function(args) {
-    var found = false;
+var grant = new cmd('Grant', '[NAME]', 'Grants someone\'s access to the commands', true);
+grant.run = function(args) {
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
+    args[0] = '';
+    var p = args.join(' ').substring(1);
 
+    granted[granted.length] = p.toLowerCase();
+    send(p + ' has now access to the commands');
+};
+
+var help = new cmd('Help', '[CMD]', 'Used for help', true);
+help.run = function(args) {
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
+
+    var found = false;
     for (var i = 0; i < cmds.length; i++) {
-        if (args[1] == cmds[i].nm) {
-            debug("[HELP CMD] Found " + args[1] + " CMD");
-            send(cmds[i].nm.charAt(0).toUpperCase() + cmds[i].nm.slice(1) + "\n" + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
+        if (args[1].toLowerCase() == cmds[i].nm.toLowerCase()) {
+            debug('[HELP CMD] Found ' + args[1] + ' CMD');
+            send(cmds[i].nm + '\n' + cmds[i].desc + '\nSyntax: ' + any + cmds[i].nm + ' ' + cmds[i].syntax);
             found = true;
         }
     }
@@ -136,7 +180,7 @@ help.run = function(args) {
         send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
-var list = new cmd('list', '', 'Lists all the CMDs avaible', true);
+var list = new cmd('List', '', 'Lists all the CMDs avaible', true);
 list.run = function(args) {
     var msg = '';
     msg = msg.concat('\tAvaible CMDs\n');
@@ -149,13 +193,33 @@ list.run = function(args) {
     send('Use ' + any + 'help [CMD] for info');
 };
 
-var say = new cmd('say', '[msg]', 'A CMD that makes me say something', true);
+var refuse = new cmd('Refuse', '[NAME]', 'Makes someone unable to execute commands', true);
+refuse.run = function(args) {
+    if (args.length < 2) {
+        syntaxError();
+        return;
+    }
+    args[0] = '';
+    var p = args.join(' ').substring(1);
+
+    var index = granted.indexOf(p.toLowerCase());
+
+    debug(['[REFUSE] Got ' + index + ' index']);
+
+    if (index > -1) {
+        granted.splice(index, 1);
+        send(p + ' can\'t execute commands anymore');
+    } else
+        send('No person with name ' + p + ' found');
+};
+
+var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
-    args[0] = "";
+    args[0] = '';
     send(args.join(' '));
 };
 
-var tadd = new cmd('tadd', '[NAME]', 'Adds a person to tdare CMD', true);
+var tadd = new cmd('TAdd', '[NAME]', 'Adds a person to tdare CMD', true);
 tadd.run = function(args) {
     if (args.length < 2) {
         syntaxError();
@@ -168,7 +232,7 @@ tadd.run = function(args) {
     send('Added ' + p + ' person to tdareStack');
 };
 
-var tdare = new cmd('tdare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
+var tdare = new cmd('TDare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
 tdare.mode = 'both';
 tdare.run = function(args) {
     if (args.length > 2) {
@@ -188,6 +252,7 @@ tdare.run = function(args) {
                     break;
                 default:
                     send('Invalid mode!');
+                    break;
             }
         }
     } else {
@@ -222,11 +287,14 @@ tdare.run = function(args) {
                 msg = td > 0 ? ' asks ' : ' dares ';
                 send(tdareStack[nb1] + msg + tdareStack[nb2]);
                 break;
+            default:
+                debug('[TDARE] ERROR! Invalid mode!');
+                break;
         }
     }
 };
 
-var tlist = new cmd('tlist', '', 'Lists all the persons from tdare CMD', true);
+var tlist = new cmd('TList', '', 'Lists all the persons from tdare CMD', true);
 tlist.run = function(args) {
     var msg = '';
     msg = msg.concat('TdareStack List\n');
@@ -238,7 +306,7 @@ tlist.run = function(args) {
     send(msg);
 };
 
-var trmv = new cmd('trmv', '[NAME]', 'Removes a person from tdare CMD', true);
+var trmv = new cmd('TRmv', '[NAME]', 'Removes a person from tdare CMD', true);
 trmv.run = function(args) {
     if (args.length < 2) {
         syntaxError();
@@ -258,7 +326,12 @@ trmv.run = function(args) {
         send('No person with name ' + p + ' found');
 };
 
-var wolfr = new cmd('wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
+var whoami = new cmd('WhoAmI', '', 'Returns who are you', true);
+whoami.run = function(args) {
+    send('You are ' + msgAuthor);
+};
+
+var wolfr = new cmd('Wolfr', '[INPUT]', 'Generates a page for WolframAlpha© with any input', true);
 wolfr.run = function(args) {
     args[0] = '';
     var input = args.join(' ');
@@ -272,14 +345,17 @@ var cmds = [
     about,
     countdown,
     fact,
+    grant,
     help,
     list,
+    refuse,
     say,
     tadd,
     tdare,
     tlist,
     trmv,
-    wolfr
+    wolfr,
+    whoami
 ];
 
 //End of CMD area
@@ -287,26 +363,28 @@ var cmds = [
 //Parse the CMDs
 function parseCmd(msg) {
     msg = msg.slice(1, msg.length);
-    debug("Got '" + msg + "' CMD request.");
+    debug('Got "' + msg + '" CMD request.');
     args = msg.split(' ');
+    var permited = false;
     for (var i = 0; i < cmds.length; i++) {
-        if (args[0] == cmds[i].nm) {
+        if (args[0] == cmds[i].nm.toLowerCase() && msgAuthor == owner || enableEveryone || isGranted(msgAuthor) && cmds[i].isOn) {
             if (cmds[i].isOn) {
-                debug("Executed " + cmds[i].nm + " CMD");
+                permited = true;
+                debug('Executed ' + cmds[i].nm + ' CMD');
                 cmds[i].run(args);
-            } else {
-                debug(cmds[i].nm + ' is not enabled!');
-                send(cmds[i].nm + ' is not enabled!')
+                break;
             }
         }
     }
+    if (!permited)
+        send('This CMD is not enabled or you don\'t have perms to execute it');
 }
 
 //Utils area
 
 function debug(msg) {
     if (doDebug)
-        console.log("[DEBUG]  " + msg + "\n");
+        console.log('[DEBUG]  ' + msg + '\n');
 }
 
 function factorial(x) {
@@ -314,6 +392,28 @@ function factorial(x) {
         return 1;
     else
         return x * factorial(x - 1);
+}
+
+function isGranted(p) {
+    var grant = false;
+    for (var i = 0; i < granted.length; i++) {
+        if (p.toLowerCase == granted[i]) {
+            grant = true;
+            return grant;
+        }
+    }
+    return grant;
+}
+
+function isMsg(type) {
+    var found = false;
+    for (var i = 0; i < msgTypes.length; i++) {
+        if (type === msgTypes[i]) {
+            found = true;
+            break;
+        }
+    }
+    return found;
 }
 
 //Based on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
@@ -337,8 +437,8 @@ function syntaxError() {
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function dispatch(target, eventType, msg) {
-    var evt = document.createEvent("TextEvent");
-    evt.initTextEvent(eventType, true, true, window, msg, 0, "en-US");
+    var evt = document.createEvent('TextEvent');
+    evt.initTextEvent(eventType, true, true, window, msg, 0, 'en-US');
     target.focus();
     target.dispatchEvent(evt);
 }
@@ -352,9 +452,9 @@ function send(msg) {
 //Based on http://macr1408.260mb.org/wspam2.html
 function spam(msg) {
     texto = msg;
-    campo = document.getElementsByClassName("input")[1];
-    dispatch(campo, "textInput", texto);
-    var input = document.getElementsByClassName("icon btn-icon icon-send");
+    campo = document.getElementsByClassName('input')[1];
+    dispatch(campo, 'textInput', texto);
+    var input = document.getElementsByClassName('icon btn-icon icon-send');
     input[0].click();
     setTimeout(function() {}, 50);
 }
