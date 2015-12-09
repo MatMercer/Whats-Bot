@@ -160,6 +160,18 @@ grant.run = function(args) {
     send(p + ' has now access to the commands');
 };
 
+var grantlist = new cmd('GrantList', '', 'Lists everyone with acces to CMDs', true);
+grantlist.run = function(args) {
+    var msg = '';
+    msg = msg.concat('Granted People List\n');
+    msg = msg.concat(block_divider);
+    for (var i = 0; i < granted.length; i++) {
+        msg = msg.concat('\t' + granted[i] + '\n');
+    }
+    msg = msg.concat(block_divider);
+    send(msg);
+};
+
 var help = new cmd('Help', '[CMD]', 'Used for help', true);
 help.run = function(args) {
     if (args.length < 2) {
@@ -346,6 +358,7 @@ var cmds = [
     countdown,
     fact,
     grant,
+    grantlist,
     help,
     list,
     refuse,
@@ -366,18 +379,20 @@ function parseCmd(msg) {
     debug('Got "' + msg + '" CMD request.');
     args = msg.split(' ');
     var permited = false;
-    for (var i = 0; i < cmds.length; i++) {
-        if (args[0] == cmds[i].nm.toLowerCase() && msgAuthor == owner || enableEveryone || isGranted(msgAuthor) && cmds[i].isOn) {
-            if (cmds[i].isOn) {
-                permited = true;
-                debug('Executed ' + cmds[i].nm + ' CMD');
-                cmds[i].run(args);
-                break;
+    if (msgAuthor == owner || enableEveryone || isGranted(msgAuthor)) {
+        for (var i = 0; i < cmds.length; i++) {
+            if (args[0] == cmds[i].nm.toLowerCase() && cmds[i].isOn) {
+                if (cmds[i].isOn) {
+                    permited = true;
+                    debug('Executed ' + cmds[i].nm + ' CMD');
+                    cmds[i].run(args);
+                    break;
+                }
             }
         }
     }
     if (!permited)
-        send('This CMD is not enabled or you don\'t have perms to execute it');
+        send('Error, invalid name or not enough perms');
 }
 
 //Utils area
@@ -395,14 +410,14 @@ function factorial(x) {
 }
 
 function isGranted(p) {
-    var grant = false;
     for (var i = 0; i < granted.length; i++) {
-        if (p.toLowerCase == granted[i]) {
+        console.log(granted[i] + ' ' + p.toLowerCase());
+        if (granted[i] == p.toLowerCase()) {
             grant = true;
-            return grant;
+            return true;
         }
     }
-    return grant;
+    return false;
 }
 
 function isMsg(type) {
