@@ -46,7 +46,7 @@ var owner = 'Me';
 
 //Var used to detect msgs
 var msgTypes = [
-        'msg',
+    'msg',
     'msg msg-continuation',
     'msg msg-continuation msg-group',
     'msg msg-group'
@@ -104,49 +104,6 @@ about.run = function(args) {
     send('WhatsApp Bot | Made by I3399I');
     send('Version ' + version);
     send('Source code at: http://bit.ly/l3399l');
-};
-
-var countdown = new cmd('Countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
-countdown.run = function(args) {
-    if (args.length < 3) {
-        syntaxError();
-        return;
-    }
-    var times = parseInt(args[1], 10);
-    if (isNaN(times))
-        times = 5;
-    debug('[COUNTDOWN] Got ' + times + ' times');
-    var ms = parseInt(args[2], 10);
-    if (isNaN(ms))
-        ms = 500;
-    ms -= 100;
-    if (ms < 100)
-        ms = 100;
-    debug('[COUNTDOWN] Got ' + ms + ' miliseconds');
-
-    if (times > 10) {
-        send('times too high! using 10 times instead!');
-        times = 10;
-    }
-
-    if (ms > 2000) {
-        send('MS too high! using 2000ms instead!');
-        ms = 2000;
-    }
-
-    send(times);
-
-    loop();
-
-    function loop() {
-        setTimeout(function() {
-            times--;
-            if (times >= 0) {
-                send(times);
-                loop();
-            }
-        }, ms);
-    }
 };
 
 var fact = new cmd('Fact', '[NUMBER]', 'Returns the factorial of a x number', true);
@@ -371,7 +328,6 @@ wolfr.run = function(args) {
 //All the CMDs, used for listing/searching
 var cmds = [
     about,
-    countdown,
     fact,
     help,
     perms,
