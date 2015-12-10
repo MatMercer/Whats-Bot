@@ -407,6 +407,18 @@ function parseCmd(msg) {
 
 //Utils area
 
+//Generates a list with any array
+function arrayMsg(title, array) {
+	var msg = '';
+    msg = msg.concat(title + '\n');
+    msg = msg.concat(block_divider);
+    for (var i = 0; i < array.length; i++) {
+        msg = msg.concat('\t' + array[i] + '\n');
+    }
+    msg = msg.concat(block_divider);
+    return msg;
+}
+
 //Prints stuff into the console (if you want to)
 function debug(msg) {
     if (doDebug)
