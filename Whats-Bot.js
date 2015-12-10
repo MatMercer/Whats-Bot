@@ -32,6 +32,8 @@ var lastId;
 
 //Used to see if someone have access to the CMDs
 var msgAuthor;
+var msgBoxType;
+var msgBoxSubType;
 
 //Used to store message content
 var msgText;
@@ -106,8 +108,6 @@ about.run = function(args) {
 
 var countdown = new cmd('Countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
 countdown.run = function(args) {
-    var i = 0;
-
     if (args.length < 3) {
         syntaxError();
         return;
@@ -172,12 +172,11 @@ perms.run = function(args) {
                 if (!enableEveryone) {
                     enableEveryone = true;
                     send('Everyone has access to CMDs now');
-                    break;
                 } else {
                     enableEveryone = false;
                     send('Only permited people has access to CMDs now\nUse ' + any + 'perms add [NAME] to add people');
-                    break;
                 }
+                break;
             case 'add':
                 if (args.length < 3) {
                     syntaxError();
@@ -188,8 +187,8 @@ perms.run = function(args) {
                     granted[granted.length] = p.toLowerCase();
                     debug(['[PERMS ADD] ' + p + ' has access to CMDs']);
                     send(p + ' has now access to the commands');
-                    break;
                 }
+                break;
             case 'del':
                 if (args.length < 3) {
                     syntaxError();
@@ -207,8 +206,8 @@ perms.run = function(args) {
                         send(p + ' can\'t execute commands anymore');
                     } else
                         send('No person with name ' + p + ' found');
-                    break;
                 }
+                break;
             default:
                 syntaxError();
                 break;
@@ -216,10 +215,18 @@ perms.run = function(args) {
     }
 };
 
-var help = new cmd('Help', '[CMD]', 'Used for help', true);
+var help = new cmd('Help', '[CMD]', 'Lists all the CMDs or get info about any', true);
 help.run = function(args) {
     if (args.length < 2) {
-        syntaxError();
+        var msg = '';
+        msg = msg.concat('\tAvaible CMDs\n');
+        msg = msg.concat(block_divider);
+        for (var i = 0; i < cmds.length; i++) {
+            msg = msg.concat('\t' + any + cmds[i].nm + '\n');
+        }
+        msg = msg.concat(block_divider);
+        send(msg);
+        send('Use ' + any + 'help [CMD] for info');
         return;
     }
 
@@ -236,64 +243,81 @@ help.run = function(args) {
         send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
-var list = new cmd('List', '', 'Lists all the CMDs avaible', true);
-list.run = function(args) {
-    var msg = '';
-    msg = msg.concat('\tAvaible CMDs\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < cmds.length; i++) {
-        msg = msg.concat('\t' + any + cmds[i].nm + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
-    send('Use ' + any + 'help [CMD] for info');
-};
-
 var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
     args[0] = '';
     send(args.join(' '));
 };
 
-var tadd = new cmd('TAdd', '[NAME]', 'Adds a person to tdare CMD', true);
-tadd.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    tdareStack[tdareStack.length] = p;
-    send('Added ' + p + ' person to tdareStack');
-};
-
-var tdare = new cmd('TDare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
+var tdare = new cmd('TDare', 'add/del/list | set [truth/dare/both]', 'Truth or Dare CMD, generates random results\nUse ' + any + 'tdare set [MODE] to change the mode.', true);
 tdare.mode = 'both';
 tdare.run = function(args) {
-    if (args.length > 2) {
-        if (args[1] == 'set') {
-            switch (args[2]) {
-                case 'truth':
-                    this.mode = 'truth';
-                    send('Set Truth or Dare mode to only truth');
+    if (args.length > 1) {
+        var p;
+        args[0] = '';
+
+        switch (args[1]) {
+            case 'set':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                case 'dare':
-                    this.mode = 'dare';
-                    send('Set Truth or Dare mode to only dare');
+                }
+                switch (args[2]) {
+                    case 'truth':
+                        this.mode = 'truth';
+                        send('Set Truth or Dare mode to only truth');
+                        break;
+                    case 'dare':
+                        this.mode = 'dare';
+                        send('Set Truth or Dare mode to only dare');
+                        break;
+                    case 'both':
+                        this.mode = 'both';
+                        send('Set Truth or Dare mode to both');
+                        break;
+                    default:
+                        send('Invalid mode!');
+                        break;
+                }
+                break;
+            case 'add':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                case 'both':
-                    this.mode = 'both';
-                    send('Set Truth or Dare mode to both');
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    tdareStack[tdareStack.length] = p.toLowerCase();
+                    debug(['[TDARE ADD] ' + p + ' added from truth or dare game']);
+                    send(p + ' added to truth or dare game');
+                }
+                break;
+            case 'del':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                default:
-                    send('Invalid mode!');
-                    break;
-            }
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    var index = tdareStack.indexOf(p.toLowerCase());
+                    debug(['[TDARE DEL] Got ' + index + ' index']);
+                    if (index > -1) {
+                        tdareStack.splice(index, 1);
+                        send(p + ' removed from truth or dare game');
+                    } else
+                        send('No person with name ' + p + ' found');
+                }
+                break;
+            case 'list':
+                send(arrayMsg('Truth or dare list', tdareStack));
+                break;
+            default:
+                syntaxError();
+                break;
         }
     } else {
         if (tdareStack.length < 2) {
-            send('Error! At least 2 people need to be added! Used /tadd to add them');
+            send('Error! At least 2 people need to be added! Use ' + any + 'tdare add to add them');
             return;
         }
         var td = rand(0, 2);
@@ -330,31 +354,6 @@ tdare.run = function(args) {
     }
 };
 
-var tlist = new cmd('TList', '', 'Lists all the persons from tdare CMD', true);
-tlist.run = function(args) {
-    send(arrayMsg('TdareStack List', tdareStack));
-};
-
-var trmv = new cmd('TRmv', '[NAME]', 'Removes a person from tdare CMD', true);
-trmv.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    var index = tdareStack.indexOf(p);
-
-    debug(['[TRMV] Got ' + index + ' index']);
-
-    if (index > -1) {
-        tdareStack.splice(index, 1);
-        send('Removed ' + p + ' from tdareStack');
-    } else
-        send('No person with name ' + p + ' found');
-};
-
 var whoami = new cmd('WhoAmI', '', 'Returns who are you', true);
 whoami.run = function(args) {
     send('You are ' + msgAuthor);
@@ -375,13 +374,9 @@ var cmds = [
     countdown,
     fact,
     help,
-    list,
     perms,
     say,
-    tadd,
     tdare,
-    tlist,
-    trmv,
     wolfr,
     whoami
 ];
@@ -443,7 +438,6 @@ function isGranted(p) {
     for (var i = 0; i < granted.length; i++) {
         console.log(granted[i] + ' ' + p.toLowerCase());
         if (granted[i] == p.toLowerCase()) {
-            grant = true;
             return true;
         }
     }
@@ -498,8 +492,8 @@ function send(msg) {
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function spam(msg) {
-    texto = msg;
-    campo = document.getElementsByClassName('input')[1];
+    var texto = msg;
+    var campo = document.getElementsByClassName('input')[1];
     dispatch(campo, 'textInput', texto);
     var input = document.getElementsByClassName('icon btn-icon icon-send');
     input[0].click();
