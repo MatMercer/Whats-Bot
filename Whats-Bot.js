@@ -157,22 +157,63 @@ fact.run = function(args) {
         syntaxError();
 };
 
-var grant = new cmd('Grant', '[NAME]', 'Grants someone\'s access to the commands', true);
-grant.run = function(args) {
+var perms = new cmd('Perms', 'add/del [NAME] | open', 'Control people access to CMDs', true);
+perms.run = function(args) {
     if (args.length < 2) {
-        syntaxError();
+        send(arrayMsg('Granted People List', granted));
+        send('Use ' + any + 'perms add/del to control it');
         return;
+    } else {
+        var p;
+        args[0] = '';
+
+        switch (args[1]) {
+            case 'open':
+                if (!enableEveryone) {
+                    enableEveryone = true;
+                    send('Everyone has access to CMDs now');
+                    break;
+                } else {
+                    enableEveryone = false;
+                    send('Only permited people has access to CMDs now\nUse ' + any + 'perms add [NAME] to add people');
+                    break;
+                }
+            case 'add':
+                if (args.length < 3) {
+                    syntaxError();
+                    break;
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    granted[granted.length] = p.toLowerCase();
+                    debug(['[PERMS ADD] ' + p + ' has access to CMDs']);
+                    send(p + ' has now access to the commands');
+                    break;
+                }
+            case 'del':
+                if (args.length < 3) {
+                    syntaxError();
+                    break;
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+
+                    var index = granted.indexOf(p.toLowerCase());
+
+                    debug(['[PERMS DEL] Got ' + index + ' index']);
+
+                    if (index > -1) {
+                        granted.splice(index, 1);
+                        send(p + ' can\'t execute commands anymore');
+                    } else
+                        send('No person with name ' + p + ' found');
+                    break;
+                }
+            default:
+                syntaxError();
+                break;
+        }
     }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    granted[granted.length] = p.toLowerCase();
-    send(p + ' has now access to the commands');
-};
-
-var grantlist = new cmd('GrantList', '', 'Lists everyone with acces to CMDs', true);
-grantlist.run = function(args) {
-    send(arrayMsg('Granted People List', granted));
 };
 
 var help = new cmd('Help', '[CMD]', 'Used for help', true);
@@ -206,26 +247,6 @@ list.run = function(args) {
     msg = msg.concat(block_divider);
     send(msg);
     send('Use ' + any + 'help [CMD] for info');
-};
-
-var refuse = new cmd('Refuse', '[NAME]', 'Makes someone unable to execute commands', true);
-refuse.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    var index = granted.indexOf(p.toLowerCase());
-
-    debug(['[REFUSE] Got ' + index + ' index']);
-
-    if (index > -1) {
-        granted.splice(index, 1);
-        send(p + ' can\'t execute commands anymore');
-    } else
-        send('No person with name ' + p + ' found');
 };
 
 var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
@@ -353,11 +374,9 @@ var cmds = [
     about,
     countdown,
     fact,
-    grant,
-    grantlist,
     help,
     list,
-    refuse,
+    perms,
     say,
     tadd,
     tdare,
@@ -395,7 +414,7 @@ function parseCmd(msg) {
 
 //Generates a list with any array
 function arrayMsg(title, array) {
-	var msg = '';
+    var msg = '';
     msg = msg.concat(title + '\n');
     msg = msg.concat(block_divider);
     for (var i = 0; i < array.length; i++) {
