@@ -23,13 +23,23 @@ var msgTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.messa
 var msgSubTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div';
 var msgAuthorSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > h3 > span > span.text-clickable > span';
 
-//General vars
+//Stores CMD arguments
 var args;
+
+//Used to don't execute duplicate CMDs requests
 var id;
 var lastId;
+
+//Used to see if someone have access to the CMDs
 var msgAuthor;
+
+//Used to store message content
 var msgText;
+
+//Version
 var version = '3.0';
+
+//The name of the master
 var owner = 'Me';
 
 //Var used to detect msgs
@@ -40,7 +50,7 @@ var msgTypes = [
     'msg msg-group'
 ];
 
-//Var used to enable everyone
+//Var used to make everyone have access to the bot
 var enableEveryone = false;
 
 //Var used to permit people
@@ -49,7 +59,7 @@ var granted = [];
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
 
-//Get the CMD request
+//Called everytime a DOM element is inserted into the page
 $(document).bind('DOMNodeInserted', function(e) {
     msgBoxType = $(msgTypeSelect).attr('class');
     id = $(msgTextSelect).attr('data-reactid');
@@ -83,7 +93,7 @@ function cmd(nm, syntax, desc, isOn) {
 
 //Start of CMD area
 
-//Vars area
+//CMD vars area
 var tdareStack = [];
 //End of vars area
 
@@ -397,11 +407,13 @@ function parseCmd(msg) {
 
 //Utils area
 
+//Prints stuff into the console (if you want to)
 function debug(msg) {
     if (doDebug)
         console.log('[DEBUG]  ' + msg + '\n');
 }
 
+//A classic factorial function
 function factorial(x) {
     if (x <= 1)
         return 1;
@@ -409,6 +421,7 @@ function factorial(x) {
         return x * factorial(x - 1);
 }
 
+//Checks if someone have permission to execute a command
 function isGranted(p) {
     for (var i = 0; i < granted.length; i++) {
         console.log(granted[i] + ' ' + p.toLowerCase());
@@ -420,6 +433,7 @@ function isGranted(p) {
     return false;
 }
 
+//Detects Messages
 function isMsg(type) {
     var found = false;
     for (var i = 0; i < msgTypes.length; i++) {
@@ -458,6 +472,7 @@ function dispatch(target, eventType, msg) {
     target.dispatchEvent(evt);
 }
 
+//Adds a little delay (100ms) for spam method
 function send(msg) {
     setTimeout(function() {
         spam(msg);
