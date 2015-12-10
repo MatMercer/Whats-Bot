@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    WhatsApp Bot
-// @version      3.0
+// @version      3.3
 // @description  A whatsapp web bot
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -39,14 +39,14 @@ var msgBoxSubType;
 var msgText;
 
 //Version
-var version = '3.0';
+var version = '3.3';
 
 //The name of the master
 var owner = 'Me';
 
 //Var used to detect msgs
 var msgTypes = [
-    'msg',
+        'msg',
     'msg msg-continuation',
     'msg msg-continuation msg-group',
     'msg msg-group'
