@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WhatsApp Bot
 // @namespace    WhatsApp Bot
-// @version      3.0
+// @version      3.3
 // @description  A whatsapp web bot
 // @author       I3399I
 // @match        https://web.whatsapp.com/
@@ -23,13 +23,25 @@ var msgTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.messa
 var msgSubTypeSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div';
 var msgAuthorSelect = '#main > div > div.pane-chat-msgs.pane-chat-body > div.message-list > div:last > div > div > h3 > span > span.text-clickable > span';
 
-//General vars
+//Stores CMD arguments
 var args;
+
+//Used to don't execute duplicate CMDs requests
 var id;
 var lastId;
+
+//Used to see if someone have access to the CMDs
 var msgAuthor;
+var msgBoxType;
+var msgBoxSubType;
+
+//Used to store message content
 var msgText;
-var version = '3.0';
+
+//Version
+var version = '3.3';
+
+//The name of the master
 var owner = 'Me';
 
 //Var used to detect msgs
@@ -40,7 +52,7 @@ var msgTypes = [
     'msg msg-group'
 ];
 
-//Var used to enable everyone
+//Var used to make everyone have access to the bot
 var enableEveryone = false;
 
 //Var used to permit people
@@ -49,7 +61,7 @@ var granted = [];
 //Emoji used to separate stuff
 var block_divider = '➖➖➖➖➖➖\n';
 
-//Get the CMD request
+//Called everytime a DOM element is inserted into the page
 $(document).bind('DOMNodeInserted', function(e) {
     msgBoxType = $(msgTypeSelect).attr('class');
     id = $(msgTextSelect).attr('data-reactid');
@@ -83,7 +95,7 @@ function cmd(nm, syntax, desc, isOn) {
 
 //Start of CMD area
 
-//Vars area
+//CMD vars area
 var tdareStack = [];
 //End of vars area
 
@@ -94,51 +106,6 @@ about.run = function(args) {
     send('Source code at: http://bit.ly/l3399l');
 };
 
-var countdown = new cmd('Countdown', '[TIMES] [MS]', 'Generates a countdown with custom miliseconds, min delay is 100 ms', true);
-countdown.run = function(args) {
-    var i = 0;
-
-    if (args.length < 3) {
-        syntaxError();
-        return;
-    }
-    var times = parseInt(args[1], 10);
-    if (isNaN(times))
-        times = 5;
-    debug('[COUNTDOWN] Got ' + times + ' times');
-    var ms = parseInt(args[2], 10);
-    if (isNaN(ms))
-        ms = 500;
-    ms -= 100;
-    if (ms < 100)
-        ms = 100;
-    debug('[COUNTDOWN] Got ' + ms + ' miliseconds');
-
-    if (times > 10) {
-        send('times too high! using 10 times instead!');
-        times = 10;
-    }
-
-    if (ms > 2000) {
-        send('MS too high! using 2000ms instead!');
-        ms = 2000;
-    }
-
-    send(times);
-
-    loop();
-
-    function loop() {
-        setTimeout(function() {
-            times--;
-            if (times >= 0) {
-                send(times);
-                loop();
-            }
-        }, ms);
-    }
-};
-
 var fact = new cmd('Fact', '[NUMBER]', 'Returns the factorial of a x number', true);
 fact.run = function(args) {
     if (args.length > 1 && !isNaN(args[1])) {
@@ -147,35 +114,76 @@ fact.run = function(args) {
         syntaxError();
 };
 
-var grant = new cmd('Grant', '[NAME]', 'Grants someone\'s access to the commands', true);
-grant.run = function(args) {
+var perms = new cmd('Perms', 'add/del [NAME] | open', 'Control people access to CMDs', true);
+perms.run = function(args) {
     if (args.length < 2) {
-        syntaxError();
+        send(arrayMsg('Granted People List', granted));
+        send('Use ' + any + 'perms add/del to control it');
         return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
+    } else {
+        var p;
+        args[0] = '';
 
-    granted[granted.length] = p.toLowerCase();
-    send(p + ' has now access to the commands');
+        switch (args[1]) {
+            case 'open':
+                if (!enableEveryone) {
+                    enableEveryone = true;
+                    send('Everyone has access to CMDs now');
+                } else {
+                    enableEveryone = false;
+                    send('Only permited people has access to CMDs now\nUse ' + any + 'perms add [NAME] to add people');
+                }
+                break;
+            case 'add':
+                if (args.length < 3) {
+                    syntaxError();
+                    break;
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    granted[granted.length] = p.toLowerCase();
+                    debug(['[PERMS ADD] ' + p + ' has access to CMDs']);
+                    send(p + ' has now access to the commands');
+                }
+                break;
+            case 'del':
+                if (args.length < 3) {
+                    syntaxError();
+                    break;
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+
+                    var index = granted.indexOf(p.toLowerCase());
+
+                    debug(['[PERMS DEL] Got ' + index + ' index']);
+
+                    if (index > -1) {
+                        granted.splice(index, 1);
+                        send(p + ' can\'t execute commands anymore');
+                    } else
+                        send('No person with name ' + p + ' found');
+                }
+                break;
+            default:
+                syntaxError();
+                break;
+        }
+    }
 };
 
-var grantlist = new cmd('GrantList', '', 'Lists everyone with acces to CMDs', true);
-grantlist.run = function(args) {
-    var msg = '';
-    msg = msg.concat('Granted People List\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < granted.length; i++) {
-        msg = msg.concat('\t' + granted[i] + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
-};
-
-var help = new cmd('Help', '[CMD]', 'Used for help', true);
+var help = new cmd('Help', '[CMD]', 'Lists all the CMDs or get info about any', true);
 help.run = function(args) {
     if (args.length < 2) {
-        syntaxError();
+        var msg = '';
+        msg = msg.concat('\tAvaible CMDs\n');
+        msg = msg.concat(block_divider);
+        for (var i = 0; i < cmds.length; i++) {
+            msg = msg.concat('\t' + any + cmds[i].nm + '\n');
+        }
+        msg = msg.concat(block_divider);
+        send(msg);
+        send('Use ' + any + 'help [CMD] for info');
         return;
     }
 
@@ -192,84 +200,81 @@ help.run = function(args) {
         send('No CMD with name "' + args[1] + '" found, use\n' + any + 'list to see all the CMDs');
 };
 
-var list = new cmd('List', '', 'Lists all the CMDs avaible', true);
-list.run = function(args) {
-    var msg = '';
-    msg = msg.concat('\tAvaible CMDs\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < cmds.length; i++) {
-        msg = msg.concat('\t' + any + cmds[i].nm + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
-    send('Use ' + any + 'help [CMD] for info');
-};
-
-var refuse = new cmd('Refuse', '[NAME]', 'Makes someone unable to execute commands', true);
-refuse.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    var index = granted.indexOf(p.toLowerCase());
-
-    debug(['[REFUSE] Got ' + index + ' index']);
-
-    if (index > -1) {
-        granted.splice(index, 1);
-        send(p + ' can\'t execute commands anymore');
-    } else
-        send('No person with name ' + p + ' found');
-};
-
 var say = new cmd('Say', '[msg]', 'A CMD that makes me say something', true);
 say.run = function(args) {
     args[0] = '';
     send(args.join(' '));
 };
 
-var tadd = new cmd('TAdd', '[NAME]', 'Adds a person to tdare CMD', true);
-tadd.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    tdareStack[tdareStack.length] = p;
-    send('Added ' + p + ' person to tdareStack');
-};
-
-var tdare = new cmd('TDare', 'set [truth|dare|both]', 'Truth or Dare CMD, generates random results or Use ' + any + 'tdare set [MODE] to change the mode.', true);
+var tdare = new cmd('TDare', 'add/del/list | set [truth/dare/both]', 'Truth or Dare CMD, generates random results\nUse ' + any + 'tdare set [MODE] to change the mode.', true);
 tdare.mode = 'both';
 tdare.run = function(args) {
-    if (args.length > 2) {
-        if (args[1] == 'set') {
-            switch (args[2]) {
-                case 'truth':
-                    this.mode = 'truth';
-                    send('Set Truth or Dare mode to only truth');
+    if (args.length > 1) {
+        var p;
+        args[0] = '';
+
+        switch (args[1]) {
+            case 'set':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                case 'dare':
-                    this.mode = 'dare';
-                    send('Set Truth or Dare mode to only dare');
+                }
+                switch (args[2]) {
+                    case 'truth':
+                        this.mode = 'truth';
+                        send('Set Truth or Dare mode to only truth');
+                        break;
+                    case 'dare':
+                        this.mode = 'dare';
+                        send('Set Truth or Dare mode to only dare');
+                        break;
+                    case 'both':
+                        this.mode = 'both';
+                        send('Set Truth or Dare mode to both');
+                        break;
+                    default:
+                        send('Invalid mode!');
+                        break;
+                }
+                break;
+            case 'add':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                case 'both':
-                    this.mode = 'both';
-                    send('Set Truth or Dare mode to both');
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    tdareStack[tdareStack.length] = p.toLowerCase();
+                    debug(['[TDARE ADD] ' + p + ' added from truth or dare game']);
+                    send(p + ' added to truth or dare game');
+                }
+                break;
+            case 'del':
+                if (args.length < 3) {
+                    syntaxError();
                     break;
-                default:
-                    send('Invalid mode!');
-                    break;
-            }
+                } else {
+                    args[1] = '';
+                    p = args.join(' ').trim();
+                    var index = tdareStack.indexOf(p.toLowerCase());
+                    debug(['[TDARE DEL] Got ' + index + ' index']);
+                    if (index > -1) {
+                        tdareStack.splice(index, 1);
+                        send(p + ' removed from truth or dare game');
+                    } else
+                        send('No person with name ' + p + ' found');
+                }
+                break;
+            case 'list':
+                send(arrayMsg('Truth or dare list', tdareStack));
+                break;
+            default:
+                syntaxError();
+                break;
         }
     } else {
         if (tdareStack.length < 2) {
-            send('Error! At least 2 people need to be added! Used /tadd to add them');
+            send('Error! At least 2 people need to be added! Use ' + any + 'tdare add to add them');
             return;
         }
         var td = rand(0, 2);
@@ -306,38 +311,6 @@ tdare.run = function(args) {
     }
 };
 
-var tlist = new cmd('TList', '', 'Lists all the persons from tdare CMD', true);
-tlist.run = function(args) {
-    var msg = '';
-    msg = msg.concat('TdareStack List\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < tdareStack.length; i++) {
-        msg = msg.concat('\t' + tdareStack[i] + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
-};
-
-var trmv = new cmd('TRmv', '[NAME]', 'Removes a person from tdare CMD', true);
-trmv.run = function(args) {
-    if (args.length < 2) {
-        syntaxError();
-        return;
-    }
-    args[0] = '';
-    var p = args.join(' ').substring(1);
-
-    var index = tdareStack.indexOf(p);
-
-    debug(['[TRMV] Got ' + index + ' index']);
-
-    if (index > -1) {
-        tdareStack.splice(index, 1);
-        send('Removed ' + p + ' from tdareStack');
-    } else
-        send('No person with name ' + p + ' found');
-};
-
 var whoami = new cmd('WhoAmI', '', 'Returns who are you', true);
 whoami.run = function(args) {
     send('You are ' + msgAuthor);
@@ -355,18 +328,11 @@ wolfr.run = function(args) {
 //All the CMDs, used for listing/searching
 var cmds = [
     about,
-    countdown,
     fact,
-    grant,
-    grantlist,
     help,
-    list,
-    refuse,
+    perms,
     say,
-    tadd,
     tdare,
-    tlist,
-    trmv,
     wolfr,
     whoami
 ];
@@ -397,11 +363,25 @@ function parseCmd(msg) {
 
 //Utils area
 
+//Generates a list with any array
+function arrayMsg(title, array) {
+    var msg = '';
+    msg = msg.concat(title + '\n');
+    msg = msg.concat(block_divider);
+    for (var i = 0; i < array.length; i++) {
+        msg = msg.concat('\t' + array[i] + '\n');
+    }
+    msg = msg.concat(block_divider);
+    return msg;
+}
+
+//Prints stuff into the console (if you want to)
 function debug(msg) {
     if (doDebug)
         console.log('[DEBUG]  ' + msg + '\n');
 }
 
+//A classic factorial function
 function factorial(x) {
     if (x <= 1)
         return 1;
@@ -409,17 +389,18 @@ function factorial(x) {
         return x * factorial(x - 1);
 }
 
+//Checks if someone have permission to execute a command
 function isGranted(p) {
     for (var i = 0; i < granted.length; i++) {
         console.log(granted[i] + ' ' + p.toLowerCase());
         if (granted[i] == p.toLowerCase()) {
-            grant = true;
             return true;
         }
     }
     return false;
 }
 
+//Detects Messages
 function isMsg(type) {
     var found = false;
     for (var i = 0; i < msgTypes.length; i++) {
@@ -458,6 +439,7 @@ function dispatch(target, eventType, msg) {
     target.dispatchEvent(evt);
 }
 
+//Adds a little delay (100ms) for spam method
 function send(msg) {
     setTimeout(function() {
         spam(msg);
@@ -466,8 +448,8 @@ function send(msg) {
 
 //Based on http://macr1408.260mb.org/wspam2.html
 function spam(msg) {
-    texto = msg;
-    campo = document.getElementsByClassName('input')[1];
+    var texto = msg;
+    var campo = document.getElementsByClassName('input')[1];
     dispatch(campo, 'textInput', texto);
     var input = document.getElementsByClassName('icon btn-icon icon-send');
     input[0].click();
