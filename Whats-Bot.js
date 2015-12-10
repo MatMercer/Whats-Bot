@@ -172,14 +172,7 @@ grant.run = function(args) {
 
 var grantlist = new cmd('GrantList', '', 'Lists everyone with acces to CMDs', true);
 grantlist.run = function(args) {
-    var msg = '';
-    msg = msg.concat('Granted People List\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < granted.length; i++) {
-        msg = msg.concat('\t' + granted[i] + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
+    send(arrayMsg('Granted People List', granted));
 };
 
 var help = new cmd('Help', '[CMD]', 'Used for help', true);
@@ -318,14 +311,7 @@ tdare.run = function(args) {
 
 var tlist = new cmd('TList', '', 'Lists all the persons from tdare CMD', true);
 tlist.run = function(args) {
-    var msg = '';
-    msg = msg.concat('TdareStack List\n');
-    msg = msg.concat(block_divider);
-    for (var i = 0; i < tdareStack.length; i++) {
-        msg = msg.concat('\t' + tdareStack[i] + '\n');
-    }
-    msg = msg.concat(block_divider);
-    send(msg);
+    send(arrayMsg('TdareStack List', tdareStack));
 };
 
 var trmv = new cmd('TRmv', '[NAME]', 'Removes a person from tdare CMD', true);
